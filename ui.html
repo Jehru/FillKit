@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font: 12px/1.4 Inter, system-ui, sans-serif; margin: 0; }
+      .wrap { padding: 12px; display: grid; gap: 8px; }
+      label { display: flex; align-items: center; gap: 6px; }
+      button { height: 32px; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      small { color: #666; }
+      /* Remove fieldset border styles */
+      fieldset {
+        border: none;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <small>Select text layers (or a frame with text), then click Fill.</small>
+
+      <div>
+        <strong>Dataset</strong>
+        <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+          <label><input type="radio" name="dataset" value="names" checked> Names</label>
+          <label><input type="radio" name="dataset" value="landlines"> Landlines</label>
+          <label><input type="radio" name="dataset" value="emails"> Emails</label>
+          <label><input type="radio" name="dataset" value="business"> Business names</label>
+          <label><input type="radio" name="dataset" value="datePast"> Dates (past)</label>
+          <label><input type="radio" name="dataset" value="dateFuture"> Dates (future)</label>
+          <label><input type="radio" name="dataset" value="status"> Status values</label>
+        </div>
+      </div>
+
+      <div id="names-options" style="margin-top: 12px;">
+        <strong>Names options</strong>
+        <div class="row" style="margin-top: 4px;">
+          <label><input type="radio" name="nameFormat" value="full" checked> Full</label>
+          <label><input type="radio" name="nameFormat" value="first"> First</label>
+          <label><input type="radio" name="nameFormat" value="last"> Last</label>
+        </div>
+      </div>
+
+      <button id="fill">Fill Selected Text</button>
+    </div>
+
+    <script>
+      const dsRadios = Array.from(document.querySelectorAll('input[name="dataset"]'));
+      const nameRadios = Array.from(document.querySelectorAll('input[name="nameFormat"]'));
+      const namesOptions = document.getElementById('names-options');
+
+      function currentDataset() {
+        const r = dsRadios.find(r => r.checked);
+        return r ? r.value : 'names';
+      }
+      function currentNameFormat() {
+        const r = nameRadios.find(r => r.checked);
+        return r ? r.value : 'full';
+      }
+
+      // Show/hide name options based on dataset
+      dsRadios.forEach(r => r.addEventListener('change', () => {
+        namesOptions.style.display = currentDataset() === 'names' ? 'block' : 'none';
+      }));
+      namesOptions.style.display = 'block';
+
+      document.getElementById('fill').onclick = () => {
+        const dataset = currentDataset();
+        const nameFormat = currentNameFormat();
+        parent.postMessage({ pluginMessage: { type: 'fill', dataset, nameFormat } }, '*');
+      };
+    </script>
+  </body>
+</html>
